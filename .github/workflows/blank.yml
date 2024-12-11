@@ -27,8 +27,13 @@ jobs:
           tag_name: Release
           name: ${{ env.RELEASE_NAME }} 
           body: |
-            ### 修改时间偏移
-            修改 ./zshrc 文件中的
+            ### 1. 安装 zsh
+            `sudo apt install zsh`
+            ### 2. 切换到 zsh
+            `chsh -s $(which zsh)`
+            ### 3. 运行脚本
+            ### （可选）修改时间偏移
+            修改 `./zshrc` 文件中的
             `local offset_seconds=$((current_time + 0 * 3600))`
             将 0 改为 8 ，即可从 UTC时区 转成 CST时区（北京时间）
           draft: false

@@ -101,15 +101,15 @@ format_time_with_offset() {
   # 使用 date -d 或 @ 来将秒数转换为可读的时间格式
   if date --version >/dev/null 2>&1; then
     # GNU date 支持 -d 和 @
-    date -d "@$offset_seconds" +"%Y-%m-%d %H:%M:%S"
+    date -d "@$offset_seconds" +"%H:%M:%S"
   else
     # macOS 或其他不支持 -d 的系统
-    date -r $offset_seconds +"%Y-%m-%d %H:%M:%S"
+    date -r $offset_seconds +"%H:%M:%S"
   fi
 }
 
 # 设置 PS1
-PS1='[$(format_time_with_offset)] %F{93}%~ %f> '
+PS1='[$(format_time_with_offset)]%F{209} %F{93}%~ %f> '
 
 # 如果存在 .dircolors 文件，则使用它
 # 检测操作系统

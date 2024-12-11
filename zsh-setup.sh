@@ -149,6 +149,10 @@ bindkey -e
 setopt AUTO_LIST
 setopt AUTO_MENU
 setopt MENU_COMPLETE
+
+#设置编码格式
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 EOL
 
 cat > ~/.dircolors<< 'EOL'

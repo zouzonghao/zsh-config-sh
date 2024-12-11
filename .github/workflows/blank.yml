@@ -1,4 +1,4 @@
-name: Publish zsh-setup.sh
+name: 发布zsh-setup.sh
 
 on:
   push:
@@ -7,15 +7,40 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       # 第一步：检出代码
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: 列出文件 (debug step)
+        run: |
+          echo " list (.sh) files:"
+          find $GITHUB_WORKSPACE -name "*.sh"
+          release_name=$(TZ="Asia/Shanghai" date +'%Y-%m-%d %H:%M Build')
+          echo "RELEASE_NAME=$release_name" >> $GITHUB_ENV
+
+      - name: 创建 GitHub Release
+        uses: softprops/action-gh-release@master
         with:
-          name: zsh-setup.sh
-          path: zsh-setup.sh
+          tag_name: Release
+          name: ${{ env.RELEASE_NAME }} 
+          body: |
+            ### 修改时间偏移
+            修改 ./zshrc 文件中的
+            `local offset_seconds=$((current_time + 0 * 3600))`
+            将 0 改为 8 ，即可从 UTC时区 转成 CST时区（北京时间）
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload files as release assets
+        uses: softprops/action-gh-release@v2.1.0
+        with:
+          tag_name: Release
+          files: ${{ github.workspace }}/*.sh
+          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

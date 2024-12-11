@@ -32,9 +32,9 @@ jobs:
             ### 2. 切换到 zsh
             `chsh -s $(which zsh)`
             ### 3. 运行脚本
-            ### （可选）修改时间偏移
-            修改 `./zshrc` 文件中的
-            `local offset_seconds=$((current_time + 0 * 3600))`
+            `curl -fsSL https://github.com/zouzonghao/zsh-config-sh/releases/download/Release/zsh-setup.sh | sudo bash`
+            ### 4.（可选）修改时间偏移
+            修改 `./zshrc` 文件中的`local offset_seconds=$((current_time + 0 * 3600))`
             将 0 改为 8 ，即可从 UTC时区 转成 CST时区（北京时间）
           draft: false
           prerelease: false

@@ -1,0 +1,19 @@
+name: Publish zsh-setup.sh
+
+on:
+  push:
+    branches:
+      - main  
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 第一步：检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 第二步：发布 zsh-setup.sh 文件
+      - name: Publish zsh-setup.sh
+        run: |

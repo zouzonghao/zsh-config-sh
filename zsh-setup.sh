@@ -162,14 +162,14 @@ cat > ~/.dircolors<< 'EOL'
 DEFAULT 00;38;5;242   # Dark Gray text for normal files (good contrast on white background)
 
 # Directories (bold and color)
-DIR 38;5;203       # Mint Green (for directories)
-DIRLNK 38;5;203      # Light Peach (for symlinked directories)
+DIR 48;5;79;38;5;233       # Mint Green (for directories)
+DIRLNK 48;5;79;38;5;233       # Light Peach (for symlinked directories)
 
 # Symbolic Links
 LINK 38;5;75         # Teal for symlinks
 
 # Executable Files
-EXEC 38;5;119        # Light Cyan for executable files
+EXEC 38;5;41        # Light Cyan for executable files
 
 # Image Files (JPEG, PNG, GIF, etc.)
 IMG 38;5;214         # Warm Yellow for image files (JPEG, PNG, GIF, etc.)
@@ -288,13 +288,13 @@ WEB 38;5;213         # Pastel Pink for web files
 .less 38;5;213       # LESS (CSS preprocessor)
 
 # YAML, JSON, TOML, INI, XML Files
-CONFIG 38;5;78       # Light Green for configuration files
-.yml 38;5;78         # YAML
-.yaml 38;5;78        # YAML
-.json 38;5;78        # JSON
-.toml 38;5;78        # TOML
-.ini 38;5;78         # INI
-.xml 38;5;78         # XML
+CONFIG 38;5;175       # Light Green for configuration files
+.yml 38;5;175        # YAML
+.yaml 38;5;175        # YAML
+.json 38;5;175       # JSON
+.toml 38;5;175        # TOML
+.ini 38;5;175         # INI
+.xml 38;5;175         # XML
 
 # LaTeX Files
 LATEX 38;5;87        # Light Blue for LaTeX files

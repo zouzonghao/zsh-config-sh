@@ -14,6 +14,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 第二步：发布 zsh-setup.sh 文件
-      - name: Publish zsh-setup.sh
-        run: |
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zsh-setup.sh
+          path: zsh-setup.sh

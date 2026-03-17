@@ -1,4 +1,4 @@
-name: 发布zsh-setup.sh
+name: zsh-setup.sh
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
       - name: 创建 GitHub Release
         uses: softprops/action-gh-release@master
         with:
-          tag_name: Release
+          tag_name: v${{ github.run_id }}-${{ github.run_number }}
           name: ${{ env.RELEASE_NAME }} 
           body: |
             ### 1. 安装 zsh

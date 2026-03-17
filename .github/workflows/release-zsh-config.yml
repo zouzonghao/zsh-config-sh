@@ -96,7 +96,7 @@ jobs:
             - zsh-history-substring-search
             - .zshrc 配置文件
             - .dircolors 颜色配置
-            - install.sh 安装脚本
+            - install.sh 安装脚本（含权限修复）
           
             ### 快速安装
             ```bash

@@ -100,6 +100,8 @@ jobs:
           
             ### 快速安装
             ```bash
+            apt install zsh
+            chsh -s $(which zsh)
             wget https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/zsh-config-${{ steps.version.outputs.version }}.tar.gz
             tar -xzf zsh-config-${{ steps.version.outputs.version }}.tar.gz -C ~/
             ~/install.sh

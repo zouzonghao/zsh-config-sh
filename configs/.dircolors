@@ -1,0 +1,266 @@
+# .dircolors file for macaron style with high contrast (for white terminal background)
+
+# Default Colors (for unknown files)
+DEFAULT 00;38;5;242
+
+# Directories (bold and color)
+DIR 48;5;79;38;5;233
+DIRLNK 48;5;79;38;5;233
+
+# Symbolic Links
+LINK 38;5;75
+
+# Executable Files
+EXEC 38;5;41
+
+# Image Files (JPEG, PNG, GIF, etc.)
+IMG 38;5;214
+.jpg 38;5;214
+.jpeg 38;5;214
+.png 38;5;214
+.gif 38;5;214
+.bmp 38;5;214
+.webp 38;5;214
+.avif 38;5;214
+.mjpg 38;5;214
+.mjpeg 38;5;214
+.pbm 38;5;214
+.pgm 38;5;214
+.ppm 38;5;214
+.tga 38;5;214
+.xbm 38;5;214
+.xpm 38;5;214
+.tif 38;5;214
+.tiff 38;5;214
+.svg 38;5;214
+.svgz 38;5;214
+.mng 38;5;214
+.pcx 38;5;214
+.mov 38;5;214
+.mpg 38;5;214
+.mpeg 38;5;214
+.m2v 38;5;214
+.mkv 38;5;214
+.webm 38;5;214
+.ogm 38;5;214
+.mp4 38;5;214
+.m4v 38;5;214
+.mp4v 38;5;214
+.vob 38;5;214
+.qt 38;5;214
+.nuv 38;5;214
+.wmv 38;5;214
+.asf 38;5;214
+.rm 38;5;214
+.rmvb 38;5;214
+.flc 38;5;214
+.avi 38;5;214
+.fli 38;5;214
+.flv 38;5;214
+.gl 38;5;214
+.dl 38;5;214
+.xcf 38;5;214
+.xwd 38;5;214
+.yuv 38;5;214
+.cgm 38;5;214
+.emf 38;5;214
+.ogv 38;5;214
+.ogx 38;5;214
+
+# Video Files (MP4, MKV, etc.)
+VID 38;5;129
+.mp4 38;5;129
+.mkv 38;5;129
+.avi 38;5;129
+.mov 38;5;129
+.webm 38;5;129
+
+# Audio Files (MP3, WAV, FLAC, etc.)
+AUD 38;5;51
+.mp3 38;5;51
+.wav 38;5;51
+.flac 38;5;51
+.ogg 38;5;51
+.m4a 38;5;51
+.aac 38;5;51
+.au 38;5;51
+.mid 38;5;51
+.midi 38;5;51
+.mka 38;5;51
+.mpc 38;5;51
+.ra 38;5;51
+.oga 38;5;51
+.opus 38;5;51
+.spx 38;5;51
+.xspf 38;5;51
+
+# Text Files (TXT, MARKDOWN, etc.)
+TXT 38;5;123
+.txt 38;5;123
+.md 38;5;123
+.rst 38;5;123
+
+# Code Files (JavaScript, Python, C++, etc.)
+CODE 38;5;81
+.js 38;5;81
+.jsx 38;5;81
+.ts 38;5;81
+.tsx 38;5;81
+.py 38;5;81
+.java 38;5;81
+.cpp 38;5;81
+.hpp 38;5;81
+.c 38;5;81
+.h 38;5;81
+.rb 38;5;81
+.go 38;5;81
+.php 38;5;81
+.swift 38;5;81
+.rs 38;5;81
+.sh 38;5;45
+.bat 38;5;45
+
+# HTML/CSS Files
+WEB 38;5;213
+.html 38;5;213
+.htm 38;5;213
+.css 38;5;213
+.scss 38;5;213
+.less 38;5;213
+
+# YAML, JSON, TOML, INI, XML Files
+CONFIG 38;5;175
+.yml 38;5;175
+.yaml 38;5;175
+.json 38;5;175
+.toml 38;5;175
+.ini 38;5;175
+.xml 38;5;175
+
+# LaTeX Files
+LATEX 38;5;87
+.tex 38;5;87
+
+# PDF Files
+PDF 38;5;141
+.pdf 38;5;141
+
+# Word Files (DOC, DOCX)
+WORD 38;5;133
+.doc 38;5;133
+.docx 38;5;133
+
+# Spreadsheet Files (XLS, XLSX)
+SPREADSHEET 38;5;220
+.xls 38;5;220
+.xlsx 38;5;220
+
+# Presentation Files (PPT, PPTX)
+PRESENTATION 38;5;213
+.ppt 38;5;213
+.pptx 38;5;213
+
+# Archive Files (ZIP, TAR, GZ, etc.)
+ARCHIVE 38;5;45
+.7z 38;5;45
+.ace 38;5;45
+.alz 38;5;45
+.apk 38;5;45
+.arc 38;5;45
+.arj 38;5;45
+.bz 38;5;45
+.bz2 38;5;45
+.cab 38;5;45
+.cpio 38;5;45
+.crate 38;5;45
+.deb 38;5;45
+.drpm 38;5;45
+.dwm 38;5;45
+.dz 38;5;45
+.ear 38;5;45
+.egg 38;5;45
+.esd 38;5;45
+.gz 38;5;45
+.jar 38;5;45
+.lha 38;5;45
+.lrz 38;5;45
+.lz 38;5;45
+.lz4 38;5;45
+.lzh 38;5;45
+.lzma 38;5;45
+.lzo 38;5;45
+.pyz 38;5;45
+.rar 38;5;45
+.rpm 38;5;45
+.rz 38;5;45
+.sar 38;5;45
+.swm 38;5;45
+.t7z 38;5;45
+.tar 38;5;45
+.taz 38;5;45
+.tbz 38;5;45
+.tbz2 38;5;45
+.tgz 38;5;45
+.tlz 38;5;45
+.txz 38;5;45
+.tz 38;5;45
+.tzo 38;5;45
+.tzst 38;5;45
+.udeb 38;5;45
+.war 38;5;45
+.whl 38;5;45
+.wim 38;5;45
+.xz 38;5;45
+.z 38;5;45
+.zip 38;5;45
+.zoo 38;5;45
+.zst 38;5;45
+
+# Backup Files (files ending in ~ or #)
+BACKUP 38;5;238
+*~ 38;5;238
+*# 38;5;238
+.bak 38;5;238
+.crdownload 38;5;238
+.dpkg-dist 38;5;238
+.dpkg-new 38;5;238
+.dpkg-old 38;5;238
+.dpkg-tmp 38;5;238
+.old 38;5;238
+.orig 38;5;238
+.part 38;5;238
+.rej 38;5;238
+.rpmnew 38;5;238
+.rpmorig 38;5;238
+.rpmsave 38;5;238
+.swp 38;5;238
+.tmp 38;5;238
+.ucf-dist 38;5;238
+.ucf-new 38;5;238
+.ucf-old 38;5;238
+
+# Temporary Files (files starting with .)
+TEMP 38;5;240
+.* 38;5;240
+
+# Git Ignore Files
+GITIGNORE 38;5;57
+.gitignore 38;5;57
+
+# Docker Files (Dockerfile, docker-compose.yml)
+DOCKER 38;5;58
+Dockerfile 38;5;58
+docker-compose.yml 38;5;58
+
+# Environment Variables Files
+ENV 38;5;240
+.env 38;5;240
+
+# Shell Configuration Files (bashrc, zshrc, etc.)
+SHELL 38;5;240
+.bashrc 38;5;240
+.zshrc 38;5;240
+.profile 38;5;240
+
+# Other Files
+OTHER 38;5;251

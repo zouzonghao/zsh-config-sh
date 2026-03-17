@@ -1,0 +1,112 @@
+name: Release Zsh Config
+
+on:
+  push:
+    branches: [main, master]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+  
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=v$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create build directory
+        run: |
+          mkdir -p build/.zsh
+
+      - name: Clone zsh-dircolors-solarized
+        run: |
+          git clone --depth 1 https://github.com/joel-porquet/zsh-dircolors-solarized.git build/.zsh/zsh-dircolors-solarized
+
+      - name: Clone zsh-autosuggestions
+        run: |
+          git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions.git build/.zsh/zsh-autosuggestions
+
+      - name: Clone zsh-syntax-highlighting
+        run: |
+          git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git build/.zsh/zsh-syntax-highlighting
+
+      - name: Clone zsh-completions
+        run: |
+          git clone --depth 1 https://github.com/zsh-users/zsh-completions.git build/.zsh/zsh-completions
+
+      - name: Clone zsh-history-substring-search
+        run: |
+          git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search.git build/.zsh/zsh-history-substring-search
+
+      - name: Remove .git directories
+        run: |
+          find build/.zsh -name ".git" -type d -exec rm -rf {} +
+
+      - name: Copy config files
+        run: |
+          cp configs/.zshrc build/.zshrc
+          cp configs/.dircolors build/.dircolors
+          cp configs/install.sh build/install.sh
+          chmod +x build/install.sh
+
+      - name: Create tarball
+        run: |
+          cd build
+          tar -czf ../zsh-config-${{ steps.version.outputs.version }}.tar.gz .
+          cd ..
+          sha256sum zsh-config-${{ steps.version.outputs.version }}.tar.gz > zsh-config-${{ steps.version.outputs.version }}.tar.gz.sha256
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Zsh Config ${{ steps.version.outputs.version }}
+          body: |
+            ## Zsh 配置文件打包
+          
+            ### 版本信息
+            - 版本：${{ steps.version.outputs.version }}
+            - 构建时间：$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          
+            ### 包含内容
+            - zsh-dircolors-solarized
+            - zsh-autosuggestions
+            - zsh-syntax-highlighting
+            - zsh-completions
+            - zsh-history-substring-search
+            - .zshrc 配置文件
+            - .dircolors 颜色配置
+            - install.sh 安装脚本
+          
+            ### 快速安装
+            ```bash
+            wget https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/zsh-config-${{ steps.version.outputs.version }}.tar.gz
+            tar -xzf zsh-config-${{ steps.version.outputs.version }}.tar.gz -C ~/
+            ~/install.sh
+            exec zsh
+            ```
+          files: |
+            zsh-config-${{ steps.version.outputs.version }}.tar.gz
+            zsh-config-${{ steps.version.outputs.version }}.tar.gz.sha256
+          draft: false
+          prerelease: false

@@ -103,27 +103,24 @@ echo "   ✓ 清理旧 compdump 缓存"
 # 🔧 修复 zsh compinit 安全问题
 echo "🔧 检查并修复 compinit 安全问题..."
 
-# 检查 compaudit 是否可用并修复不安全目录
-if command -v compaudit &> /dev/null; then
-    # 获取不安全的目录列表并修复
-    insecure_dirs=$(compaudit 2>/dev/null || true)
+# 使用 zsh 来检查 compaudit（因为 compaudit 是 zsh 内置命令）
+if command -v zsh &> /dev/null; then
+    # 获取不安全的目录列表
+    insecure_dirs=$(zsh -c 'compaudit 2>/dev/null' 2>/dev/null || true)
     if [ -n "$insecure_dirs" ]; then
         echo "   发现不安全的目录，正在修复..."
         # 修复目录权限
-        for dir in $insecure_dirs; do
+        echo "$insecure_dirs" | while read -r dir; do
             if [ -d "$dir" ]; then
                 chmod 755 "$dir" 2>/dev/null || true
                 echo "   ✓ 修复目录权限: $dir"
             fi
         done
-        # 重新加载 compinit
-        compinit -C 2>/dev/null || true
-        echo "   ✓ compinit 已重新加载"
     else
         echo "   ✓ 没有发现不安全的目录"
     fi
 else
-    echo "   ⚠️  compaudit 不可用，请手动运行: compaudit | xargs chmod 755"
+    echo "   ⚠️  zsh 不可用，请确保已安装 zsh"
 fi
 
 echo ""

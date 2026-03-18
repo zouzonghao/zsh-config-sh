@@ -49,13 +49,22 @@ fi
 # 复制配置文件
 echo "📝 复制配置文件..."
 if [ -f ".zshrc" ]; then
-    cp .zshrc ~/.zshrc
-    echo "   ✓ .zshrc 复制完成"
+    # 检查源文件和目标文件是否是同一个文件
+    if [ "$(realpath .zshrc)" = "$(realpath ~/.zshrc)" ]; then
+        echo "⚠️  跳过 .zshrc 复制（源文件与目标文件相同）"
+    else
+        cp .zshrc ~/.zshrc
+        echo "   ✓ .zshrc 复制完成"
+    fi
 fi
 
 if [ -f ".dircolors" ]; then
-    cp .dircolors ~/.dircolors
-    echo "   ✓ .dircolors 复制完成"
+    if [ "$(realpath .dircolors)" = "$(realpath ~/.dircolors)" ]; then
+        echo "⚠️  跳过 .dircolors 复制（源文件与目标文件相同）"
+    else
+        cp .dircolors ~/.dircolors
+        echo "   ✓ .dircolors 复制完成"
+    fi
 fi
 
 # 🔧 修复权限（解决 zsh compinit 安全警告）
@@ -90,6 +99,32 @@ echo "   ✓ 配置文件权限设置为 644"
 # 删除可能存在的旧 compdump 文件（避免缓存问题）
 rm -f ~/.zcompdump* 2>/dev/null || true
 echo "   ✓ 清理旧 compdump 缓存"
+
+# 🔧 修复 zsh compinit 安全问题
+echo "🔧 检查并修复 compinit 安全问题..."
+
+# 检查 compaudit 是否可用并修复不安全目录
+if command -v compaudit &> /dev/null; then
+    # 获取不安全的目录列表并修复
+    insecure_dirs=$(compaudit 2>/dev/null || true)
+    if [ -n "$insecure_dirs" ]; then
+        echo "   发现不安全的目录，正在修复..."
+        # 修复目录权限
+        for dir in $insecure_dirs; do
+            if [ -d "$dir" ]; then
+                chmod 755 "$dir" 2>/dev/null || true
+                echo "   ✓ 修复目录权限: $dir"
+            fi
+        done
+        # 重新加载 compinit
+        compinit -C 2>/dev/null || true
+        echo "   ✓ compinit 已重新加载"
+    else
+        echo "   ✓ 没有发现不安全的目录"
+    fi
+else
+    echo "   ⚠️  compaudit 不可用，请手动运行: compaudit | xargs chmod 755"
+fi
 
 echo ""
 echo "✅ 配置完成！"

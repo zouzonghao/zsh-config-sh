@@ -49,7 +49,7 @@ elif [[ "$OSTYPE" == "linux-gnu" ]] || [[ "$OSTYPE" == "linux-musl" ]]; then
         echo "检测到 Alpine Linux，正在安装依赖..."
         if ! command -v zsh &> /dev/null; then
             echo "zsh 未安装。正在安装..."
-            apk add --no-cache zsh zsh-completion
+            apk add --no-cache zsh
         fi
         if ! command -v realpath &> /dev/null; then
             echo "coreutils 未安装。正在安装..."

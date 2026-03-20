@@ -53,7 +53,7 @@ format_time_with_offset() {
 PS1='[$(format_time_with_offset)]%F{209} %F{93}%~ %f> '
 
 # 如果存在 .dircolors 文件，则使用它
-# 检测操作系统
+export SHELL=/bin/zsh
 case "$(uname -s)" in
     Darwin)
         if [ -f "$HOME/.dircolors" ]; then
@@ -62,7 +62,11 @@ case "$(uname -s)" in
         ;;
     Linux)
         if [ -f "$HOME/.dircolors" ]; then
-            eval "$(dircolors $HOME/.dircolors)"
+            if command -v gdircolors &> /dev/null; then
+                eval "$(gdircolors $HOME/.dircolors)"
+            else
+                eval "$(dircolors $HOME/.dircolors)"
+            fi
         fi
         alias ls='ls --color=auto'
         ;;

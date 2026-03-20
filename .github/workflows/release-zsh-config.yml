@@ -107,6 +107,14 @@ jobs:
             ~/install.sh
             exec zsh
             ```
+            ### Alpine Linux 安装
+            ```bash
+            apk add --no-cache zsh coreutils
+            wget https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/zsh-config-${{ steps.version.outputs.version }}.tar.gz
+            tar -xzf zsh-config-${{ steps.version.outputs.version }}.tar.gz -C ~/
+            sh ./install.sh
+            sed -i 's|/bin/sh|/bin/zsh|g' /etc/passwd
+            ```
           files: |
             zsh-config-${{ steps.version.outputs.version }}.tar.gz
             zsh-config-${{ steps.version.outputs.version }}.tar.gz.sha256

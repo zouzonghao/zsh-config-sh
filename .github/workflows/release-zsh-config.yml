@@ -62,12 +62,20 @@ jobs:
         run: |
           find build/.zsh -name ".git" -type d -exec rm -rf {} +
 
-      - name: Copy config files
+      - name: Set correct permissions for plugins
+        run: |
+          find build/.zsh -type d -exec chmod 755 {} \;
+          find build/.zsh -type f -exec chmod 644 {} \;
+          echo "✓ All directories set to 755, all files set to 644"
+
+      - name: Copy config files and set permissions
         run: |
           cp configs/.zshrc build/.zshrc
           cp configs/.dircolors build/.dircolors
           cp configs/install.sh build/install.sh
-          chmod +x build/install.sh
+          chmod 644 build/.zshrc build/.dircolors
+          chmod 755 build/install.sh
+          echo "✓ Config files copied and permissions set"
 
       - name: Create tarball
         run: |
@@ -96,7 +104,7 @@ jobs:
             - zsh-history-substring-search
             - .zshrc 配置文件
             - .dircolors 颜色配置
-            - install.sh 安装脚本（含权限修复）
+            - install.sh 安装脚本（打包时已设置正确权限）
           
             ### 快速安装
             ```bash

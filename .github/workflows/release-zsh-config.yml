@@ -35,47 +35,29 @@ jobs:
           fi
 
       - name: Create build directory
-        run: |
-          mkdir -p build/.zsh
+        run: mkdir -p build/.zsh
 
-      - name: Clone zsh-dircolors-solarized
+      - name: Clone plugins
         run: |
           git clone --depth 1 https://github.com/joel-porquet/zsh-dircolors-solarized.git build/.zsh/zsh-dircolors-solarized
-
-      - name: Clone zsh-autosuggestions
-        run: |
           git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions.git build/.zsh/zsh-autosuggestions
-
-      - name: Clone zsh-syntax-highlighting
-        run: |
           git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git build/.zsh/zsh-syntax-highlighting
-
-      - name: Clone zsh-completions
-        run: |
           git clone --depth 1 https://github.com/zsh-users/zsh-completions.git build/.zsh/zsh-completions
-
-      - name: Clone zsh-history-substring-search
-        run: |
           git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search.git build/.zsh/zsh-history-substring-search
 
       - name: Remove .git directories
-        run: |
-          find build/.zsh -name ".git" -type d -exec rm -rf {} +
+        run: find build/.zsh -name ".git" -type d -exec rm -rf {} +
 
-      - name: Set correct permissions for plugins
+      - name: Set permissions
         run: |
           find build/.zsh -type d -exec chmod 755 {} \;
           find build/.zsh -type f -exec chmod 644 {} \;
-          echo "✓ All directories set to 755, all files set to 644"
 
-      - name: Copy config files and set permissions
+      - name: Copy config files
         run: |
           cp configs/.zshrc build/.zshrc
           cp configs/.dircolors build/.dircolors
-          cp configs/install.sh build/install.sh
           chmod 644 build/.zshrc build/.dircolors
-          chmod 755 build/install.sh
-          echo "✓ Config files copied and permissions set"
 
       - name: Create tarball
         run: |
@@ -94,7 +76,6 @@ jobs:
           
             ### 版本信息
             - 版本：${{ steps.version.outputs.version }}
-            - 构建时间：$(date -u +"%Y-%m-%d %H:%M:%S UTC")
           
             ### 包含内容
             - zsh-dircolors-solarized
@@ -104,24 +85,22 @@ jobs:
             - zsh-history-substring-search
             - .zshrc 配置文件
             - .dircolors 颜色配置
-            - install.sh 安装脚本（打包时已设置正确权限）
           
-            ### 快速安装
+            ### 安装（解压即用）
             ```bash
-            apt install zsh
-            chsh -s $(which zsh)
+            apt install zsh && chsh -s $(which zsh)
             wget https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/zsh-config-${{ steps.version.outputs.version }}.tar.gz
             tar -xzf zsh-config-${{ steps.version.outputs.version }}.tar.gz -C ~/
-            ~/install.sh
             exec zsh
             ```
-            ### Alpine Linux 安装
+          
+            ### Alpine Linux
             ```bash
             apk add --no-cache zsh coreutils
             wget https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/zsh-config-${{ steps.version.outputs.version }}.tar.gz
             tar -xzf zsh-config-${{ steps.version.outputs.version }}.tar.gz -C ~/
-            sh ./install.sh
             sed -i 's|/bin/sh|/bin/zsh|g' /etc/passwd
+            exec zsh
             ```
           files: |
             zsh-config-${{ steps.version.outputs.version }}.tar.gz

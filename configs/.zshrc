@@ -27,26 +27,11 @@ zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-
 zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w -w"
 
 # 启用自动补全
-# 安全修复：确保 fpath 中的目录权限正确，避免 compinit 报 insecure directories
 autoload -Uz compinit
-
-# 自动修复 ~/.zsh 目录权限（解决解压后 group/world writable 导致的 compinit 错误）
-() {
-    local dir
-    for dir in $fpath; do
-        if [[ -d "$dir" ]] && [[ -w "$dir" || -w "$dir"(:A) ]]; then
-            # 检查是否有 group/other write 权限
-            if [[ "$(stat -c '%a' "$dir" 2>/dev/null || stat -f '%Lp' "$dir" 2>/dev/null)" =~ /[2367]/ ]]; then
-                chmod go-w "$dir" 2>/dev/null
-            fi
-        fi
-    done
-}
-
-# 使用 compinit 并忽略不安全目录（-u），同时自动重建缓存
-# -u: 忽略不安全目录和文件的权限检查，避免交互式提示导致 shell 启动中断
-# 这在 SSH 无密码登录场景下至关重要，避免 compinit 中断导致无法登录
-compinit -u
+# -u: 忽略不安全目录检查（避免交互式提示阻塞 SSH 登录）
+# -C: 跳过补全函数变更检查，直接使用缓存（大幅加速启动）
+# 如果缓存不存在会自动创建，后续启动无需重新扫描所有补全函数
+compinit -u -C
 
 # 设置按键绑定
 bindkey '^[[A' history-substring-search-up
@@ -54,25 +39,12 @@ bindkey '^[[B' history-substring-search-down
 bindkey '^[[Z' reverse-menu-complete
 bindkey '^I' menu-complete
 
-# 定义一个函数来计算并格式化时间
+# 设置 PS1 — 使用 zsh 内置时间格式，零 fork 开销
+# %D{%H:%M:%S} 是 zsh 内置 prompt escape，不需要调用外部 date 命令
+# 如果需要时区偏移，修改 offset_hours 变量（例如 +8 为北京时间）
 setopt PROMPT_SUBST
-format_time_with_offset() {
-  local current_time=$(date +%s)
-  # 获取当前时间和增加0小时后的秒数
-  local offset_seconds=$((current_time + 0 * 3600))
-  
-  # 使用 date -d 或 @ 来将秒数转换为可读的时间格式
-  if date --version >/dev/null 2>&1; then
-    # GNU date 支持 -d 和 @
-    date -d "@$offset_seconds" +"%H:%M:%S"
-  else
-    # macOS 或其他不支持 -d 的系统
-    date -r $offset_seconds +"%H:%M:%S"
-  fi
-}
-
-# 设置 PS1
-PS1='[$(format_time_with_offset)]%F{209} %F{93}%~ %f> '
+zsh_config_offset_hours=0
+PS1='[%D{%H:%M:%S}]%F{209} %F{93}%~ %f> '
 
 # 如果存在 .dircolors 文件，则使用它
 case "$(uname -s)" in

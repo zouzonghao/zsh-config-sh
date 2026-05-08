@@ -50,6 +50,8 @@ jobs:
 
       - name: Set permissions
         run: |
+          # 确保目录权限为 755，文件权限为 644
+          # 这是安全权限：非 group/world writable
           find build/.zsh -type d -exec chmod 755 {} \;
           find build/.zsh -type f -exec chmod 644 {} \;
 
@@ -57,12 +59,26 @@ jobs:
         run: |
           cp configs/.zshrc build/.zshrc
           cp configs/.dircolors build/.dircolors
+          cp configs/install.sh build/install.sh
           chmod 644 build/.zshrc build/.dircolors
+          chmod 755 build/install.sh
+
+      - name: Set build directory safe permissions
+        run: |
+          # 关键：确保 build 目录本身权限为 755
+          # 避免打包时将不安全权限带入 tarball
+          chmod 755 build
 
       - name: Create tarball
         run: |
           cd build
-          tar -czf ../zsh-config-${{ steps.version.outputs.version }}.tar.gz .
+          # 重要：不要使用 '.' 打包，而是明确列出文件和目录
+          # 这样解压时不会改变目标目录(~)的权限
+          tar -czf ../zsh-config-${{ steps.version.outputs.version }}.tar.gz \
+            .zsh \
+            .zshrc \
+            .dircolors \
+            install.sh
           cd ..
           sha256sum zsh-config-${{ steps.version.outputs.version }}.tar.gz > zsh-config-${{ steps.version.outputs.version }}.tar.gz.sha256
 
@@ -73,10 +89,10 @@ jobs:
           name: Zsh Config ${{ steps.version.outputs.version }}
           body: |
             ## Zsh 配置文件打包
-          
+            
             ### 版本信息
             - 版本：${{ steps.version.outputs.version }}
-          
+            
             ### 包含内容
             - zsh-dircolors-solarized
             - zsh-autosuggestions
@@ -85,23 +101,49 @@ jobs:
             - zsh-history-substring-search
             - .zshrc 配置文件
             - .dircolors 颜色配置
-          
-            ### 安装（解压即用）
+            - install.sh 安装脚本
+            
+            ### 安装（推荐方式）
             ```bash
-            apt install zsh && chsh -s $(which zsh)
+            # 1. 安装 zsh
+            apt install zsh    # Debian/Ubuntu
+            # 或 apk add zsh   # Alpine
+            
+            # 2. 下载最新版本
             wget https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/zsh-config-${{ steps.version.outputs.version }}.tar.gz
-            tar -xzf zsh-config-${{ steps.version.outputs.version }}.tar.gz -C ~/
-            exec zsh
+            
+            # 3. 解压到临时目录（不要直接解压到 ~/ ）
+            mkdir -p /tmp/zsh-config
+            tar -xzf zsh-config-${{ steps.version.outputs.version }}.tar.gz -C /tmp/zsh-config
+            
+            # 4. 运行安装脚本（自动修复权限、备份旧配置、保护SSH）
+            /tmp/zsh-config/install.sh
+            
+            # 5. 使配置生效
+            source ~/.zshrc
             ```
-          
+            
             ### Alpine Linux
             ```bash
             apk add --no-cache zsh coreutils
             wget https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/zsh-config-${{ steps.version.outputs.version }}.tar.gz
-            tar -xzf zsh-config-${{ steps.version.outputs.version }}.tar.gz -C ~/
-            sed -i 's|/bin/sh|/bin/zsh|g' /etc/passwd
-            exec zsh
+            mkdir -p /tmp/zsh-config
+            tar -xzf zsh-config-${{ steps.version.outputs.version }}.tar.gz -C /tmp/zsh-config
+            /tmp/zsh-config/install.sh
+            # install.sh 会提示是否切换 shell，或手动执行:
+            chsh -s /bin/zsh
             ```
+            
+            ### 校验
+            ```bash
+            sha256sum -c zsh-config-${{ steps.version.outputs.version }}.tar.gz.sha256
+            ```
+            
+            ### ⚠️ 安全提醒
+            如果你已关闭 SSH 密码登录（仅使用密钥），请务必：
+            1. **保持当前 SSH 连接不要断开**
+            2. 另开一个终端测试 SSH 登录
+            3. 确认成功后再关闭原连接
           files: |
             zsh-config-${{ steps.version.outputs.version }}.tar.gz
             zsh-config-${{ steps.version.outputs.version }}.tar.gz.sha256

@@ -21,6 +21,12 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     fi
 fi
 
+# 检查 zsh 是否安装
+if ! command -v zsh &> /dev/null; then
+    echo "错误：zsh 未安装！请先安装 zsh。"
+    exit 1
+fi
+
 # 检查并创建插件目录
 if [ ! -d ~/.zsh ]; then
     echo "创建 ~/.zsh 目录..."
@@ -29,6 +35,18 @@ else
     echo "~/.zsh 目录已存在."
 fi
 
+# 备份现有配置
+BACKUP_DIR="$HOME/.zsh-config-backup-$(date +%Y%m%d%H%M%S)"
+if [ -f ~/.zshrc ]; then
+    mkdir -p "$BACKUP_DIR"
+    cp -a ~/.zshrc "$BACKUP_DIR/"
+    echo "已备份 .zshrc 到 $BACKUP_DIR/"
+fi
+if [ -f ~/.dircolors ]; then
+    mkdir -p "$BACKUP_DIR"
+    cp -a ~/.dircolors "$BACKUP_DIR/"
+    echo "已备份 .dircolors 到 $BACKUP_DIR/"
+fi
 
 # 切换到插件目录
 cd ~/.zsh
@@ -49,6 +67,40 @@ clone_if_not_exists zsh-syntax-highlighting https://github.com/zsh-users/zsh-syn
 clone_if_not_exists zsh-completions https://github.com/zsh-users/zsh-completions.git
 clone_if_not_exists zsh-history-substring-search https://github.com/zsh-users/zsh-history-substring-search.git
 
+# ========================================
+# 关键：修复权限 — 解决 compinit 和 SSH 问题
+# ========================================
+echo "修复插件目录权限..."
+
+# 确保 ~/.zsh 及子目录不是 group/world writable
+chmod -R go-w ~/.zsh
+
+# 确保属主正确
+chown -R "$(id -u):$(id -g)" ~/.zsh 2>/dev/null || true
+
+# 确保 HOME 目录不是 group/world writable（SSH 密钥登录必需）
+chmod go-w "$HOME"
+chown "$(id -u):$(id -g)" "$HOME" 2>/dev/null || true
+
+# 修复 SSH 目录权限
+if [ -d "$HOME/.ssh" ]; then
+    chmod 700 "$HOME/.ssh"
+    chown "$(id -u):$(id -g)" "$HOME/.ssh" 2>/dev/null || true
+    if [ -f "$HOME/.ssh/authorized_keys" ]; then
+        chmod 600 "$HOME/.ssh/authorized_keys"
+        chown "$(id -u):$(id -g)" "$HOME/.ssh/authorized_keys" 2>/dev/null || true
+    fi
+    for keyfile in "$HOME/.ssh"/id_* "$HOME/.ssh"/config; do
+        if [ -f "$keyfile" ]; then
+            chmod 600 "$keyfile" 2>/dev/null || true
+        fi
+    done
+    echo "SSH 目录权限已修复"
+fi
+
+# 清理 compinit 缓存
+rm -f ~/.zcompdump*
+
 
 # 创建/替换 .zshrc 文件
 cat > ~/.zshrc << 'EOL'
@@ -63,7 +115,6 @@ source ~/.zsh/zsh-dircolors-solarized/zsh-dircolors-solarized.zsh
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source ~/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh
-
 
 # 添加 zsh-completions 到 fpath
 fpath=(~/.zsh/zsh-completions/src $fpath)
@@ -82,8 +133,26 @@ zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-
 zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w -w"
 
 # 启用自动补全
+# 安全修复：确保 fpath 中的目录权限正确，避免 compinit 报 insecure directories
 autoload -Uz compinit
-compinit
+
+# 自动修复 ~/.zsh 目录权限（解决解压后 group/world writable 导致的 compinit 错误）
+() {
+    local dir
+    for dir in $fpath; do
+        if [[ -d "$dir" ]] && [[ -w "$dir" || -w "$dir"(:A) ]]; then
+            # 检查是否有 group/other write 权限
+            if [[ "$(stat -c '%a' "$dir" 2>/dev/null || stat -f '%Lp' "$dir" 2>/dev/null)" =~ /[2367]/ ]]; then
+                chmod go-w "$dir" 2>/dev/null
+            fi
+        fi
+    done
+}
+
+# 使用 compinit 并忽略不安全目录（-u），同时自动重建缓存
+# -u: 忽略不安全目录和文件的权限检查，避免交互式提示导致 shell 启动中断
+# 这在 SSH 无密码登录场景下至关重要，避免 compinit 中断导致无法登录
+compinit -u
 
 # 设置按键绑定
 bindkey '^[[A' history-substring-search-up
@@ -117,15 +186,18 @@ case "$(uname -s)" in
     Darwin)
         # macOS 环境
         if [ -f "$HOME/.dircolors" ]; then
-            eval "$(gdircolors $HOME/.dircolors)"
+            eval "$(gdircolors $HOME/.dircolors 2>/dev/null)"
         fi
         ;;
     Linux)
         # Linux 环境
         if [ -f "$HOME/.dircolors" ]; then
-            eval "$(dircolors $HOME/.dircolors)"
+            if command -v gdircolors &> /dev/null; then
+                eval "$(gdircolors $HOME/.dircolors)"
+            else
+                eval "$(dircolors $HOME/.dircolors)"
+            fi
         fi
-        alias ls='ls --color=auto'
         ;;
     *)
         # 其他环境（如 FreeBSD, Windows 等）
@@ -154,6 +226,10 @@ setopt MENU_COMPLETE
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 EOL
+
+# 修复 .zshrc 权限
+chmod go-w ~/.zshrc
+chown "$(id -u):$(id -g)" ~/.zshrc 2>/dev/null || true
 
 cat > ~/.dircolors<< 'EOL'
 # .dircolors file for macaron style with high contrast (for white terminal background)
@@ -426,4 +502,27 @@ OTHER 38;5;251      # Light Gray for miscellaneous files
 
 EOL
 
-echo "配置完成，请重启终端。"
+# 修复 .dircolors 权限
+chmod go-w ~/.dircolors
+chown "$(id -u):$(id -g)" ~/.dircolors 2>/dev/null || true
+
+echo ""
+echo "======================================"
+echo "  配置完成！"
+echo "======================================"
+echo ""
+echo "  执行以下命令使配置生效："
+echo "    source ~/.zshrc"
+echo ""
+if [ -d "$BACKUP_DIR" ]; then
+    echo "  如需回退，执行："
+    echo "    cp -a $BACKUP_DIR/.zshrc ~/ && cp -a $BACKUP_DIR/.dircolors ~/ 2>/dev/null"
+    echo ""
+fi
+echo "  *** 安全提醒 ***"
+echo "  如果你已关闭 SSH 密码登录（仅使用密钥），请务必："
+echo "  1. 保持当前 SSH 连接不要断开"
+echo "  2. 另开一个终端测试 SSH 登录"
+echo "  3. 确认成功后再关闭原连接"
+echo ""
+echo "  切换默认 shell：chsh -s \$(which zsh)"

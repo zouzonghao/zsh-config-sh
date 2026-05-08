@@ -3,7 +3,7 @@ zsh 配置脚本
 
 ## 修改时间偏移
 
-修改 ` ./zshrc ` 文件中的
+修改 ` ~/.zshrc ` 文件中的
 
 ```
   # 获取当前时间和增加0小时后的秒数
@@ -14,7 +14,7 @@ zsh 配置脚本
 
 ## 修改终端文件颜色
 
-修改 ` .dircolors ` 文件
+修改 ` ~/.dircolors ` 文件
 
 ```
 # .dircolors 文件节选如下
@@ -41,95 +41,73 @@ DIR 38;5;24
 - zsh-completions
 - zsh-history-substring-search
 
-## 快速安装
+## 快速安装（推荐）
+
+### 方式一：从 GitHub Release 下载安装
 
 ```bash
-# 下载最新版本
+# 1. 安装 zsh
+apt install zsh    # Debian/Ubuntu
+# 或 apk add zsh   # Alpine
+
+# 2. 下载最新版本
 VERSION=v1.0.0
 wget https://github.com/YOUR_USERNAME/zsh-config/releases/download/${VERSION}/zsh-config-${VERSION}.tar.gz
 
-# 解压到 home 目录
-tar -xzf zsh-config-${VERSION}.tar.gz -C ~/
+# 3. 解压到临时目录（不要直接解压到 ~/ ，避免影响 home 目录权限）
+mkdir -p /tmp/zsh-config
+tar -xzf zsh-config-${VERSION}.tar.gz -C /tmp/zsh-config
 
-# 运行安装脚本
-~/install.sh
+# 4. 运行安装脚本
+/tmp/zsh-config/install.sh
 
-# 重启 zsh
-exec zsh
+# 5. 使配置生效
+source ~/.zshrc
 ```
 
-## 校验
+### 方式二：使用 zsh-setup.sh 脚本（在线克隆插件）
+
+```bash
+# 克隆仓库并运行
+git clone https://github.com/YOUR_USERNAME/zsh-config.git
+cd zsh-config
+bash zsh-setup.sh
+```
+
+### 校验
 
 ```bash
 sha256sum -c zsh-config-${VERSION}.tar.gz.sha256
 ```
-```
 
 ---
 
-## 🚀 使用步骤
+## 安全说明
 
-### 步骤 1: 创建仓库
+本项目的安装脚本已包含以下安全保护：
 
-```bash
-mkdir zsh-config
-cd zsh-config
-git init
-```
+1. **自动修复文件权限** — 确保 `~/.zsh` 目录及子目录不是 group/world writable，避免 `compinit` 报 insecure directories 错误
+2. **保护 HOME 目录权限** — 确保 `~/` 不是 group/world writable，避免 SSH 密钥认证失败
+3. **修复 SSH 目录权限** — 自动设置 `~/.ssh` 为 700，`~/.ssh/authorized_keys` 为 600
+4. **备份旧配置** — 安装前自动备份现有 `.zshrc`、`.dircolors`、`.zsh`
+5. **安全 shell 切换** — 使用 `chsh` 而非危险的 `sed` 替换 `/etc/passwd`
 
-### 步骤 2: 创建目录和文件
+### ⚠️ 如果你已关闭 SSH 密码登录
 
-```bash
-mkdir -p .github/workflows configs
-```
-
-然后将上面 5 个文件的内容分别保存到对应路径。
-
-### 步骤 3: 提交并推送
-
-```bash
-git add .
-git commit -m "Initial zsh config"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/zsh-config.git
-git push -u origin main
-```
-
-### 步骤 4: 触发发布
-
-```bash
-# 方式1: 打标签
-git tag v1.0.0
-git push origin v1.0.0
-
-# 方式2: GitHub 页面手动触发
-# Actions → Release Zsh Config → Run workflow
-```
-
-### 步骤 5: 下载和使用
-
-```bash
-# 从 Releases 下载
-wget https://github.com/YOUR_USERNAME/zsh-config/releases/download/v1.0.0/zsh-config-v1.0.0.tar.gz
-
-# 解压
-tar -xzf zsh-config-v1.0.0.tar.gz -C ~/
-
-# 安装
-~/install.sh
-
-# 生效
-exec zsh
-```
+请务必遵循以下步骤：
+1. **保持当前 SSH 连接不要断开**
+2. 另开一个终端测试 SSH 密钥登录
+3. 确认成功后再关闭原连接
 
 ---
 
-## 📋 文件清单总结
+## 文件清单
 
 | 文件路径 | 说明 |
 |---------|------|
 | `.github/workflows/release-zsh-config.yml` | GitHub Actions 工作流 |
 | `configs/.zshrc` | Zsh 主配置文件 |
 | `configs/.dircolors` | 目录颜色配置 |
-| `configs/install.sh` | 安装脚本 |
+| `configs/install.sh` | 安全安装脚本 |
+| `zsh-setup.sh` | 在线安装脚本（克隆插件） |
 | `README.md` | 说明文档 |
